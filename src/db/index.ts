@@ -1,9 +1,9 @@
-import { drizzle } from 'drizzle-orm/mysql2';
-import mysql from 'mysql2/promise';
-import { env } from '../env';
-import * as schema from './schema';
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
+import * as schema from "./schema";
+import { env } from "../env";
 
-const pool = mysql.createPool({
+export const poolConnection = mysql.createPool({
   host: env.DB_HOST,
   port: env.DB_PORT,
   user: env.DB_USER,
@@ -11,4 +11,5 @@ const pool = mysql.createPool({
   database: env.DB_NAME,
 });
 
-export const db = drizzle(pool, { schema, mode: 'default' });
+export const db = drizzle(poolConnection, { schema, mode: "default" });
+export * from "./schema";

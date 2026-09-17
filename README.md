@@ -1,17 +1,20 @@
-# Backend Project (Bun + ElysiaJS + Drizzle ORM + MySQL)
+# Backend Project — Bun + ElysiaJS + Drizzle + MySQL
 
-Project backend REST API yang dibangun menggunakan Bun, ElysiaJS, Drizzle ORM, dan MySQL.
+REST API backend yang dibangun menggunakan **Bun** sebagai runtime, **ElysiaJS** sebagai web framework, **Drizzle ORM** untuk query & migration database, dan **MySQL** sebagai database layer.
 
-## Prerequisites
+---
 
-- [Bun](https://bun.sh) (v1.0.0+)
-- MySQL Server (berjalan lokal atau remote)
+## Prasyarat
+
+- [Bun](https://bun.sh/) (v1.0+)
+- MySQL Server (lokal atau remote instance)
+
+---
 
 ## Setup & Instalasi
 
-1. **Clone repository dan masuk ke directory project:**
+1. **Clone repository & masuk ke direktori proyek:**
    ```bash
-   git clone https://github.com/alivgalihpp/test-vibe.git
    cd test-vibe
    ```
 
@@ -21,54 +24,81 @@ Project backend REST API yang dibangun menggunakan Bun, ElysiaJS, Drizzle ORM, d
    ```
 
 3. **Konfigurasi Environment Variables:**
-   Salin atau buat file `.env` di root directory dengan variabel berikut:
+   Salin template `.env.example` menjadi `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+   Sesuaikan variabel di file `.env` dengan kredensial database MySQL Anda:
    ```env
+   PORT=3000
    DB_HOST=localhost
    DB_PORT=3306
    DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=test_vibe
-   PORT=3000
-   ```
-   *Pastikan database MySQL dengan nama `test_vibe` sudah dibuat di MySQL server Anda.*
-
-## Database Migration
-
-1. **Generate Migration Files:**
-   ```bash
-   bun run db:generate
+   DB_PASSWORD=
+   DB_NAME=test_db
    ```
 
-2. **Push Schema ke Database:**
-   ```bash
-   bun run db:push
-   ```
+---
 
-3. **Buka Drizzle Studio (Database GUI Viewer):**
-   ```bash
-   bun run db:studio
-   ```
+## Menjalankan Database Migration
 
-## Running Development Server
+Pastikan database MySQL sudah dibuat (misal: `CREATE DATABASE test_db;`), kemudian jalankan perintah berikut:
 
-Jalankan server dalam mode development dengan auto-reload:
+- **Generate SQL Migration file dari schema Drizzle:**
+  ```bash
+  bun run db:generate
+  ```
 
-```bash
-bun run dev
+- **Push schema langsung ke database MySQL:**
+  ```bash
+  bun run db:push
+  ```
+
+- **Membuka Drizzle Studio (Database GUI):**
+  ```bash
+  bun run db:studio
+  ```
+
+---
+
+## Menjalankan Server
+
+- **Mode Development (dengan auto-reload):**
+  ```bash
+  bun run dev
+  ```
+  Server akan berjalan di `http://localhost:3000`.
+
+---
+
+## Struktur Folder
+
+```
+src/
+├── index.ts          # Entry point aplikasi, inisialisasi Elysia & CORS
+├── env.ts            # Validasi & export konfigurasi environment variables
+├── db/
+│   ├── index.ts      # Koneksi database pool (mysql2 + Drizzle)
+│   └── schema.ts     # Definisi tabel Drizzle ORM (tabel users)
+└── routes/
+    ├── index.ts      # Router aggregator
+    └── users.ts      # CRUD endpoints untuk resource users
+drizzle.config.ts     # Konfigurasi Drizzle Kit untuk migration
+drizzle/              # SQL migration files yang di-generate
+.env                  # Variabel environment lokal (di-ignore oleh git)
+.env.example          # Contoh variabel environment
 ```
 
-Server akan berjalan di `http://localhost:3000`.
+---
 
-## API Endpoints
+## Daftar Endpoint API
 
-### General
-- `GET /` — Welcome message & API status check
-
-### Users Resource (`/users`)
-- `GET /users` — Mendapatkan semua data user
-- `GET /users/:id` — Mendapatkan detail user berdasarkan ID
-- `POST /users` — Menambahkan user baru
-  - Body (JSON): `{ "name": "John Doe", "email": "john@example.com" }`
-- `PUT /users/:id` — Memperbarui data user
-  - Body (JSON): `{ "name": "Jane Doe", "email": "jane@example.com" }` (opsional)
-- `DELETE /users/:id` — Menghapus user berdasarkan ID
+| Method | Endpoint | Deskripsi | Request Body |
+|---|---|---|---|
+| `GET` | `/` | Health check & welcome message | - |
+| `GET` | `/users` | Mengambil seluruh daftar user | - |
+| `GET` | `/users/:id` | Mengambil detail satu user | - |
+| `POST` | `/users` | Menambahkan user baru | `{ "name": "John Doe", "email": "john@example.com" }` |
+| `PUT` | `/users/:id` | Memperbarui data user | `{ "name": "John Doe Updated", "email": "john.new@example.com" }` |
+| `DELETE` | `/users/:id` | Menghapus user berdasarkan ID | - |
