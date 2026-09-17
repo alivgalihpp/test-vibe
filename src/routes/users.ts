@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { users } from "../db/schema";
@@ -66,8 +67,11 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     "/",
     async ({ body, set }) => {
       try {
-        const { name, email } = body;
-        const [result] = await db.insert(users).values({ name, email });
+        const { name, email, password } = body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const [result] = await db
+          .insert(users)
+          .values({ name, email, password: hashedPassword });
         set.status = 201;
         return {
           success: true,
@@ -91,6 +95,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
       body: t.Object({
         name: t.String({ minLength: 1 }),
         email: t.String({ format: "email" }),
+        password: t.String({ minLength: 1 }),
       }),
     }
   )
